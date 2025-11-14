@@ -4,7 +4,14 @@ const Header = ({text}) => <h2>{text}</h2>
 
 const Button = ({onClick, text}) => <button onClick={onClick}>{text}</button>
 
-const StatisticLine = ({text, value, symbolAfterValue=''}) => <p>{text} {value}{symbolAfterValue}</p>
+const StatisticLine = ({text, value, symbolAfterValue=''}) => {
+  return (
+  <tr>
+    <td>{text}</td>
+    <td>{value}{symbolAfterValue}</td>
+  </tr>
+  )
+}
 
 const Statistics = ({good, neutral, bad, all}) => {
   const calculateAverage = (good, neutral, bad) => (good - bad) / (good + neutral + bad)
@@ -14,18 +21,21 @@ const Statistics = ({good, neutral, bad, all}) => {
     return (
       <>
         <Header text='statistics'/>
-      
-        <StatisticLine text='good' value={good}/>
-        <StatisticLine text='neutral' value={neutral}/>
-        <StatisticLine text='bad' value={bad}/>
-        <StatisticLine text='all' value={all}/>
-        <StatisticLine text='average' value={calculateAverage(good, neutral, bad)}/>
-        <StatisticLine text='positive' value={calculatePercentage(good, all)} symbolAfterValue=' %'/>
+          <table>
+            <tbody>
+              <StatisticLine text='good' value={good}/>
+              <StatisticLine text='neutral' value={neutral}/>
+              <StatisticLine text='bad' value={bad}/>
+              <StatisticLine text='all' value={all}/>
+              <StatisticLine text='average' value={calculateAverage(good, neutral, bad)}/>
+              <StatisticLine text='positive' value={calculatePercentage(good, all)} symbolAfterValue=' %'/>
+            </tbody>
+          </table>
       </>
     )
   }
-  return <p>No feedback given</p>
 
+  return <p>No feedback given</p>
 }
 
 const App = () => {
