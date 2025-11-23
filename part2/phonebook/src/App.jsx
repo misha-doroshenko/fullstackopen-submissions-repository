@@ -55,14 +55,19 @@ const App = () => {
     } else if (persons.find((person) => person.number === newNumber)) {
       alert(`A person with number ${newNumber} is already added to phonebook`)
     } else {
-      const newPerson = {name: newName, number: newNumber, id: persons.length + 1}
-      setPersons(persons.concat(newPerson))
-      setNewName('')
-      setNewNumber('')
+      const newPerson = {name: newName, number: newNumber}
+      const eventHandler = response => {
+        console.log(response)
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+      }
+
+      const promise = axios.post('http://localhost:3001/persons', newPerson)
+      promise.then(eventHandler)
     }
   }
 
-  
   return (
     <div>
       <h2>Phonebook</h2>
