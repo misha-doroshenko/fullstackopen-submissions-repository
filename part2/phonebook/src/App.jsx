@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
-import axios from 'axios'
+import phoneService from './services/phones'
 
 const Person = ({name, number}) => <p>{name} {number}</p>
 
@@ -43,9 +43,9 @@ const App = () => {
   const [filter, setFilter] = useState('')
 
   useEffect(() => {
-    const eventHandler = response => setPersons(response.data)
-    const promise = axios.get('http://localhost:3001/persons')
-    promise.then(eventHandler)
+    phoneService
+      .getAll()
+      .then(response => setPersons(response))
   }, [])
 
   const handleAddPerson = (event) => {
@@ -56,15 +56,14 @@ const App = () => {
       alert(`A person with number ${newNumber} is already added to phonebook`)
     } else {
       const newPerson = {name: newName, number: newNumber}
-      const eventHandler = response => {
-        console.log(response)
-        setPersons(persons.concat(response.data))
-        setNewName('')
-        setNewNumber('')
-      }
 
-      const promise = axios.post('http://localhost:3001/persons', newPerson)
-      promise.then(eventHandler)
+      phoneService
+        .create(newPerson)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        })
     }
   }
 
