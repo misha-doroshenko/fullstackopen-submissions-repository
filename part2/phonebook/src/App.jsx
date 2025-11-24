@@ -5,6 +5,7 @@ import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import SuccessMessage from './components/SuccessMessage'
+import ErrorMessage from './components/ErrorMessage'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -12,6 +13,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     phoneService
@@ -55,7 +57,8 @@ const App = () => {
   const handleDeletePerson = id => {
     const personToDelete = persons.find(person => person.id === id)
     if (!personToDelete) {
-      alert("This person is no longer in the phonebook")
+      setErrorMessage('This person is no longer in the phonebook')
+      setTimeout(() => setErrorMessage(null), 5000)
       return
     }
     if (window.confirm(`Delete ${personToDelete.name}?`)) {
@@ -66,7 +69,8 @@ const App = () => {
         setTimeout(() => setSuccessMessage(null), 5000)
       })
       .catch(() => {
-        alert(`${personToDelete.name} was already removed from the server`)
+        setErrorMessage(`${personToDelete.name} was already deleted from the phonebook`)
+        setTimeout(() => setErrorMessage(null), 5000)
         setPersons(persons.filter(person => person.id !== id))
       })
     }
@@ -77,6 +81,8 @@ const App = () => {
       <h2>Phonebook</h2>
 
       <SuccessMessage message={successMessage} />
+
+      <ErrorMessage message={errorMessage} />
 
       <Filter filter={filter} setFilter={setFilter} />
 
