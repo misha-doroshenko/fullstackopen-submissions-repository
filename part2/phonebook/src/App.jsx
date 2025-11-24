@@ -9,17 +9,18 @@ const DeletePerson = ({ onClick }) => {
 }
 
 const Persons = ({ persons, filter, onClickDelete }) => {
-  const makeComponents = person => {
-    return (
-      <div key={person.id}>
-        <Person name={person.name} number={person.number} />
-        <DeletePerson onClick={() => onClickDelete(person.id)} />
-      </div>
-    )
-  }
-  const filterPersons = (person) => person.name.toLowerCase().includes(filter.toLowerCase())
-
-  return <div>{persons.filter(filterPersons).map(makeComponents)}</div>
+return (
+  <div>
+    {persons
+      .filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
+      .map(person => (
+        <div key={person.id}>
+          <Person name={person.name} number={person.number} />
+          <DeletePerson onClick={() => onClickDelete(person.id)} />
+        </div>
+      ))}
+  </div>
+)
 }
 
 const Filter = ({ filter, setFilter }) => {
@@ -60,8 +61,18 @@ const App = () => {
 
   const handleAddPerson = event => {
     event.preventDefault()
-    if (persons.find((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+    const existedPerson = persons.find((person) => person.name === newName)
+    if (existedPerson) {
+      const updatedPerson = {...existedPerson, number: newNumber}
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        phoneService
+        .update(updatedPerson.id, updatedPerson)
+        .then(returnedPerson => {
+          setPersons(persons.map(person => person.id === updatedPerson.id ? returnedPerson : person))
+          setNewName('')
+          setNewNumber('')
+        })
+      }
     } else if (persons.find((person) => person.number === newNumber)) {
       alert(`A person with number ${newNumber} is already added to phonebook`)
     } else {
@@ -78,14 +89,18 @@ const App = () => {
   }
 
   const handleDeletePerson = id => {
-    const personToDelete = persons.find(person => person.id == id)
-    if (!person) {
+    const personToDelete = persons.find(person => person.id === id)
+    if (!personToDelete) {
       alert("This person is no longer in the phonebook")
       return
     }
-    if (window.confirm(`Delete ${personToDelete}?`)) {
+    if (window.confirm(`Delete ${personToDelete.name}?`)) {
       phoneService.deletePerson(id)
-      .then(() => setPersons(persons.filter(person => person.id != id)))
+      .then(() => setPersons(persons.filter(person => person.id !== id)))
+      .catch(() => {
+        alert(`${personToDelete.name} was already removed from the server`)
+        setPersons(persons.filter(person => person.id !== id))
+      })
     }
   }
 
