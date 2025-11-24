@@ -1,0 +1,11 @@
+.successNotification {
+  color: green;
+  font-size: 20px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: lightgrey;
+  border-color: green;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 5px;
+}
