@@ -2,17 +2,27 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import phoneService from './services/phones'
 
-const Person = ({name, number}) => <p>{name} {number}</p>
+const Person = ({ name, number }) => <>{name} {number}</>
 
-const Persons = ({persons, filter}) => {
-  const makeComponents = (person) => <Person key={person.id} name={person.name} number={person.number} />
-  const filterPersons = (person) => person.name.toLowerCase().includes(filter.toLowerCase())
-  const person_components = filter ? persons.filter(filterPersons).map(makeComponents) : persons.map(makeComponents)
-
-  return <div>{person_components}</div>
+const DeletePerson = ({ onClick }) => {
+  return <button onClick={onClick}>delete</button>
 }
 
-const Filter = ({filter, setFilter}) => {
+const Persons = ({ persons, filter, onClickDelete }) => {
+  const makeComponents = person => {
+    return (
+      <div key={person.id}>
+        <Person name={person.name} number={person.number} />
+        <DeletePerson onClick={() => onClickDelete(person.id)} />
+      </div>
+    )
+  }
+  const filterPersons = (person) => person.name.toLowerCase().includes(filter.toLowerCase())
+
+  return <div>{persons.filter(filterPersons).map(makeComponents)}</div>
+}
+
+const Filter = ({ filter, setFilter }) => {
   return (
     <div>
       filter shown with <input value={filter} onChange={(e) => {setFilter(e.target.value)}} />
@@ -20,7 +30,7 @@ const Filter = ({filter, setFilter}) => {
   )
 }
 
-const PersonForm = ({onSubmit, newName, setNewName, newNumber, setNewNumber}) => {
+const PersonForm = ({ onSubmit, newName, setNewName, newNumber, setNewNumber }) => {
   return (
     <form onSubmit={onSubmit}>
       <div>
@@ -48,7 +58,7 @@ const App = () => {
       .then(response => setPersons(response))
   }, [])
 
-  const handleAddPerson = (event) => {
+  const handleAddPerson = event => {
     event.preventDefault()
     if (persons.find((person) => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
@@ -67,6 +77,18 @@ const App = () => {
     }
   }
 
+  const handleDeletePerson = id => {
+    const personToDelete = persons.find(person => person.id == id)
+    if (!person) {
+      alert("This person is no longer in the phonebook")
+      return
+    }
+    if (window.confirm(`Delete ${personToDelete}?`)) {
+      phoneService.deletePerson(id)
+      .then(() => setPersons(persons.filter(person => person.id != id)))
+    }
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -82,7 +104,7 @@ const App = () => {
 
       <h2>Numbers</h2>
 
-      <Persons persons={persons} filter={filter} />
+      <Persons persons={persons} filter={filter} onClickDelete={handleDeletePerson}/>
     </div>
   )
 }
